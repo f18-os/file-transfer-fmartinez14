@@ -32,7 +32,6 @@ while True:
     sock, addr = lsock.accept()
     file_name= ""
     protocol= ""
-
     from framedSock import framedSend, framedReceive
 
     if not os.fork():
@@ -70,11 +69,26 @@ while True:
 
                     framedSend(sock,sendBack,debug)
 
-
-                if currBuf:
+                if currBuf and protocol == "PUT":
                     print(file_name + " writing:" + currBuf)
                     with open("filesFolder/server/" + file_name, 'a+') as outputFile:
                         outputFile.write(currBuf)
                     currBuf = ""
                     outputFile.close()
+
+            elif protocol== "GET":
+                with open("filesFolder/server/" + file_name, 'r') as outputFile:
+                    currBuf += outputFile.read()
+                outputFile.close()
+                currBuf += " !@#___!@#      |||&&&***"
+                while currBuf:
+                    print("sending: " + currBuf + " " + str(len(currBuf)))
+                    framedSend(sock,str.encode(currBuf), debug)
+                    tempVar = framedReceive(sock, debug)
+                    bytesToMove = len(tempVar.decode())
+                    print("got back:" + tempVar.decode())
+                    currBuf = currBuf[bytesToMove:]
+                print("Sucessfully sent file.")
+
+
             print("Connection Terminated")

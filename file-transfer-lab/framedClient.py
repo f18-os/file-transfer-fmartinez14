@@ -11,8 +11,8 @@ from framedSock import framedSend, framedReceive
 
 switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
-    (('-f', '--fileName') , 'file_name', "fileFromClient.txt"),
-    (('-p', '--protocol') , 'protocol', "PUT"),
+    (('-f', '--fileName') , 'file_name', "fileFromServer.txt"),
+    (('-p', '--protocol') , 'protocol', "GET"),
     (('-d', '--debug'), "debug", False), # boolean (set if present)
     (('-?', '--usage'), "usage", False), # boolean (set if present)
     )
@@ -24,6 +24,7 @@ paramMap = params.parseParams(switchesVarDefaults)
 server, file_name, protocol, usage, debug  = paramMap["server"], paramMap["file_name"], paramMap["protocol"], paramMap["usage"], paramMap["debug"]
 
 currBuf = ""
+bufferIsComplete = False
 if usage:
     params.usage()
 
@@ -80,10 +81,29 @@ if protocol == "PUT":
         print("got back:" + tempVar.decode())
         currBuf = currBuf[bytesToMove:]
     s.close()
-print("Sucessfully sent file.")
+    print("Sucessfully sent file.")
 
+elif protocol== "GET":
+    while not bufferIsComplete:
+        tempStr = framedReceive(s,debug)
+        sendBack = tempStr
+        tempStr = tempStr.decode()
+        print("Recieved: " + tempStr + " " + str(len(tempStr)))
+        if " !@#___!@# " in tempStr:
+            writeFile, delimeter = tempStr.split(" !@#___!@# ")
+            currBuf += writeFile
+            bufferIsComplete = True
+        else:
+            currBuf += tempStr
 
+        framedSend(s,sendBack,debug)
 
+    if currBuf and protocol == "GET":
+        print(file_name + " writing:" + currBuf)
+        with open("filesFolder/client/" + file_name, 'a+') as outputFile:
+            outputFile.write(currBuf)
+        currBuf = ""
+        outputFile.close()
 # print("sending hello world")
 # framedSend(s, b"hello world", debug)
 # print("received:", framedReceive(s, debug))
