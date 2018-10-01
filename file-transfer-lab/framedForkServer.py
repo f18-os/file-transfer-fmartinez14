@@ -64,8 +64,11 @@ while True:
                         writeFile, delimeter = tempStr.split(" !@#___!@# ")
                         currBuf += writeFile
                         bufferIsComplete = True
+                    if len(tempStr) < 100:
+                        bufferIsComplete = True
                     else:
                         currBuf += tempStr
+                        tempStr = ""
 
                     framedSend(sock,sendBack,debug)
 
@@ -78,12 +81,13 @@ while True:
 
             elif protocol== "GET":
                 with open("filesFolder/server/" + file_name, 'r') as outputFile:
-                    currBuf += outputFile.read()
+                    currBuf += outputFile.read().strip()
                 outputFile.close()
-                currBuf += " !@#___!@#      |||&&&***"
+                currBuf += " !@#___!@# "
                 while currBuf:
-                    print("sending: " + currBuf + " " + str(len(currBuf)))
-                    framedSend(sock,str.encode(currBuf), debug)
+                    sendMe = currBuf[:100]
+                    print("sending: " + sendMe + " " + str(len(sendMe)))
+                    framedSend(sock,str.encode(sendMe), debug)
                     tempVar = framedReceive(sock, debug)
                     bytesToMove = len(tempVar.decode())
                     print("got back:" + tempVar.decode())

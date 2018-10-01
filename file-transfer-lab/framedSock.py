@@ -6,7 +6,7 @@ def framedSend(sock, payload, debug=0):
      while len(msg):
          nsent = sock.send(msg)
          msg = msg[nsent:]
-     
+
 rbuf = b""                      # static receive buffer
 
 def framedReceive(sock, debug=0):
@@ -18,7 +18,7 @@ def framedReceive(sock, debug=0):
              match = re.match(b'([^:]+):(.*)', rbuf) # look for colon
              if match:
                   lengthStr, rbuf = match.groups()
-                  try: 
+                  try:
                        msgLength = int(lengthStr)
                   except:
                        if len(rbuf):

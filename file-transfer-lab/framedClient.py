@@ -13,7 +13,7 @@ switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
     (('-f', '--fileName') , 'file_name', "fileFromServer.txt"),
     (('-p', '--protocol') , 'protocol', "GET"),
-    (('-d', '--debug'), "debug", False), # boolean (set if present)
+    (('-d', '--debug'), "debug", True), # boolean (set if present)
     (('-?', '--usage'), "usage", False), # boolean (set if present)
     )
 
@@ -72,14 +72,16 @@ if protocol == "PUT":
     with open("filesFolder/client/" + file_name, 'r') as outputFile:
         currBuf += outputFile.read()
     outputFile.close()
-    currBuf += " !@#___!@#      |||&&&***"
+    currBuf += " !@#___!@# "
     while currBuf:
-        print("sending: " + currBuf + " " + str(len(currBuf)))
-        framedSend(s,str.encode(currBuf), debug)
+        sendMe = currBuf[:100]
+        print("sending: " + sendMe + " " + str(len(sendMe)))
+        framedSend(s,str.encode(sendMe), debug)
         tempVar = framedReceive(s, debug)
         bytesToMove = len(tempVar.decode())
         print("got back:" + tempVar.decode())
         currBuf = currBuf[bytesToMove:]
+
     s.close()
     print("Sucessfully sent file.")
 
@@ -92,6 +94,8 @@ elif protocol== "GET":
         if " !@#___!@# " in tempStr:
             writeFile, delimeter = tempStr.split(" !@#___!@# ")
             currBuf += writeFile
+            bufferIsComplete = True
+        if len(tempStr) < 100:
             bufferIsComplete = True
         else:
             currBuf += tempStr
