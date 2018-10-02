@@ -14,4 +14,7 @@ For Server:
 #python3 framedForkServer.py -l 50001
 
 
-You may change these parameters to change protocol or server. It supports both PUT and GET. 
+You may change these parameters to change protocol or server. It supports both PUT and GET.
+
+
+Files are saved inside the /filesFolder/client and /filesFolder/server/ folders. You can transfer using those directories.
