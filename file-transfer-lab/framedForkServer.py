@@ -48,7 +48,7 @@ while True:
 
             # payload += b"!"             # make emphatic!
 
-            if not file_name:
+            if not file_name: #If file name is empty, that means we are recieving parameters.
                 tempVar = payload.decode()
                 protocol, file_name = tempVar.split(" ")
                 print(protocol + " " + file_name)
@@ -57,7 +57,7 @@ while True:
             if protocol == "PUT":
                 while not bufferIsComplete:
                     tempStr = framedReceive(sock,debug)
-                    sendBack = tempStr
+                    sendBack = tempStr #Same logic as client , recieve the information until the delimeter or the buffer is less than 100.
                     tempStr = tempStr.decode()
                     print("Recieved: " + tempStr + " " + str(len(tempStr)))
                     if " !@#___!@# " in tempStr:
@@ -72,14 +72,14 @@ while True:
 
                     framedSend(sock,sendBack,debug)
 
-                if currBuf and protocol == "PUT":
+                if currBuf and protocol == "PUT": #Write to file once buffer is complete.
                     print(file_name + " writing:" + currBuf)
                     with open("filesFolder/server/" + file_name, 'a+') as outputFile:
                         outputFile.write(currBuf)
                     currBuf = ""
                     outputFile.close()
 
-            elif protocol== "GET":
+            elif protocol== "GET": #Read file same as client and send 100 bytes at a time.
                 with open("filesFolder/server/" + file_name, 'r') as outputFile:
                     currBuf += outputFile.read().strip()
                 outputFile.close()
@@ -91,7 +91,7 @@ while True:
                     tempVar = framedReceive(sock, debug)
                     bytesToMove = len(tempVar.decode())
                     print("got back:" + tempVar.decode())
-                    currBuf = currBuf[bytesToMove:]
+                    currBuf = currBuf[bytesToMove:] #Move buffer  by the amount of bytes recieved.
                 print("Sucessfully sent file.")
 
 

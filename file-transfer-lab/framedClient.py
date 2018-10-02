@@ -9,7 +9,7 @@ import re,params,socket
 from framedSock import framedSend, framedReceive
 
 
-switchesVarDefaults = (
+switchesVarDefaults = ( #Default parameters
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
     (('-f', '--fileName') , 'file_name', "fileFromServer.txt"),
     (('-p', '--protocol') , 'protocol', "GET"),
@@ -22,7 +22,7 @@ progname = "framedClient"
 paramMap = params.parseParams(switchesVarDefaults)
 
 server, file_name, protocol, usage, debug  = paramMap["server"], paramMap["file_name"], paramMap["protocol"], paramMap["usage"], paramMap["debug"]
-
+#Default variables and parameters.
 currBuf = ""
 bufferIsComplete = False
 if usage:
@@ -62,7 +62,7 @@ if s is None:
     sys.exit(1)
 
 
-print(protocol + " " + file_name)
+print(protocol + " " + file_name) #Prints and send commands.
 sendParameters = protocol + " " + file_name
 framedSend(s, str.encode(sendParameters), debug)
 allSet = framedReceive(s, debug)
@@ -71,11 +71,11 @@ allSet = framedReceive(s, debug)
 if protocol == "PUT":
     with open("filesFolder/client/" + file_name, 'r') as outputFile:
         currBuf += outputFile.read()
-    outputFile.close()
+    outputFile.close() #Writes to buffer and closes file. Adding delimeter at end.
     currBuf += " !@#___!@# "
     while currBuf:
         sendMe = currBuf[:100]
-        print("sending: " + sendMe + " " + str(len(sendMe)))
+        print("sending: " + sendMe + " " + str(len(sendMe))) #Sends packets at 100 bytes at a time and then closes the socket. Move buffer by the amount of bytes recieved back.
         framedSend(s,str.encode(sendMe), debug)
         tempVar = framedReceive(s, debug)
         bytesToMove = len(tempVar.decode())
@@ -89,13 +89,13 @@ elif protocol== "GET":
     while not bufferIsComplete:
         tempStr = framedReceive(s,debug)
         sendBack = tempStr
-        tempStr = tempStr.decode()
+        tempStr = tempStr.decode() #Recieve the information until the buffer is complete.
         print("Recieved: " + tempStr + " " + str(len(tempStr)))
         if " !@#___!@# " in tempStr:
             writeFile, delimeter = tempStr.split(" !@#___!@# ")
-            currBuf += writeFile
+            currBuf += writeFile #if delimeter is found, stop.
             bufferIsComplete = True
-        if len(tempStr) < 100:
+        if len(tempStr) < 100: #Or if buffer is less than a 100.
             bufferIsComplete = True
         else:
             currBuf += tempStr
@@ -106,8 +106,5 @@ elif protocol== "GET":
         print(file_name + " writing:" + currBuf)
         with open("filesFolder/client/" + file_name, 'a+') as outputFile:
             outputFile.write(currBuf)
-        currBuf = ""
+        currBuf = "" #Write to file once sending from server is complete.
         outputFile.close()
-# print("sending hello world")
-# framedSend(s, b"hello world", debug)
-# print("received:", framedReceive(s, debug))
